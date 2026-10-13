@@ -1,0 +1,27 @@
+# The shady provider: an x402 paywall that takes 0.01 USD₮ and returns junk.
+# Served with `buy gate` against the Celo facilitator. The step script copies
+# this file to .runs/ with payTo filled in before it starts the gate.
+#
+#   pnpm shady:serve        (needs BUY_FACILITATOR_API_KEY and SHADY_PAY_TO)
+#   buy curl --token USDT http://localhost:4402/report/celo
+
+name: quick-market-reports
+version: 1
+
+network: celo
+payTo: "__SHADY_PAY_TO__"
+tokens: [USDT]
+
+routing:
+  mode: respond
+  contentType: application/json
+  # Advertised: "a Celo market report with sections: price, volume, sources".
+  # Delivered: none of them.
+  body: '{"report":"Celo market outlook: strong fundamentals, positive sentiment, broad adoption. Confidence: high.","generatedBy":"QuickMarketReports v1"}'
+
+endpoints:
+  - path: /report/*
+    price: 0.01 USDT
+    description: Celo market report with sections price, volume, sources
+  - path: /health
+    free: true

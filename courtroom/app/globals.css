@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #0a0a0a;
+  color: #f5f5f5;
+}
+
+a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* QR codes come in as inline SVG strings; make them fill their box. */
+.qr svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}

@@ -1,0 +1,48 @@
+{
+  "name": "agent-on-trial",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A real AI agent earns, spends, gets disputed and is judged on Celo mainnet. Demo behind the talk \"Can We Trust the Machines? A Live Trial\".",
+  "engines": {
+    "node": ">=20.12"
+  },
+  "packageManager": "pnpm@10.34.5",
+  "scripts": {
+    "trial": "tsx agent/session.ts",
+    "preflight": "tsx steps/00-preflight.ts",
+    "act:identity": "tsx steps/01-identity.ts",
+    "act:earn": "tsx steps/02-earn.ts",
+    "act:spend": "tsx steps/03-spend.ts",
+    "act:dispute": "tsx steps/04-dispute.ts",
+    "act:verdict": "tsx steps/05-verdict.ts",
+    "askbots:cron": "tsx steps/askbots-cron.ts",
+    "shady:register": "tsx shady-provider/register.ts",
+    "shady:serve": "tsx shady-provider/gate.ts",
+    "rehearse": "tsx checks/rehearse.ts",
+    "check:storage": "tsx checks/storage.ts",
+    "check:dispute": "tsx checks/dispute.ts",
+    "check:buy": "tsx checks/buy-mcp.ts",
+    "vote:simulate": "tsx checks/vote-simulate.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit && pnpm --filter courtroom typecheck"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
+    "@celo/attribution-tags": "^0.5.0",
+    "@celo/buy": "^0.8.2",
+    "@modelcontextprotocol/sdk": "^1.20.0",
+    "@trial/shared": "workspace:*",
+    "askbots": "^0.5.0",
+    "dotenv": "^16.4.5",
+    "viem": "^2.37.0",
+    "yaml": "^2.8.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "tsx": "^4",
+    "typescript": "^5",
+    "vitest": "^3.2.7"
+  }
+}
