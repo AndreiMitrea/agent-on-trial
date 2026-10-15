@@ -1,32 +1,44 @@
 import { spawn } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { createRequire } from 'node:module';
+import { dirname, join, resolve } from 'node:path';
 import { env, roleKey } from './env.js';
 
 /**
  * The `buy` CLI (npm @celo/buy) is the defendant's wallet for x402. State
- * lives under BUY_HOME inside the repo, with the file keystore so nothing
- * prompts the macOS keychain on stage.
+ * lives under BUY_HOME inside the repo. The key lives in the OS keychain
+ * (`system` backend): buy refuses its plaintext `file` backend on mainnet.
+ * BUY_KEYSTORE_BACKEND in .env overrides it.
  */
 export const ACCOUNT = 'defendant';
 
-export function buyBin(): string {
-  const local = resolve('node_modules/.bin/buy');
-  return existsSync(local) ? local : 'buy';
+/**
+ * How to start the buy CLI. The installed package's JS entry runs under this
+ * node, which works on Windows too, where node_modules/.bin/buy is a shell
+ * script that spawn cannot start. Falls back to `buy` on PATH.
+ */
+export function buyCommand(): { command: string; args: string[] } {
+  try {
+    const pkg = createRequire(import.meta.url).resolve('@celo/buy/package.json');
+    return { command: process.execPath, args: [join(dirname(pkg), 'dist', 'main.js')] };
+  } catch {
+    return { command: 'buy', args: [] };
+  }
 }
 
 export function buyEnv(extra: NodeJS.ProcessEnv = {}): NodeJS.ProcessEnv {
   return {
     ...process.env,
     BUY_HOME: resolve(env.buyHome),
-    BUY_KEYSTORE_BACKEND: 'file',
+    BUY_KEYSTORE_BACKEND: process.env.BUY_KEYSTORE_BACKEND ?? 'system',
     ...extra,
   };
 }
 
 export function runBuy(args: string[], opts: { env?: NodeJS.ProcessEnv; input?: string } = {}): Promise<{ code: number; stdout: string; stderr: string }> {
   return new Promise((res, rej) => {
-    const child = spawn(buyBin(), args, { env: buyEnv(opts.env), stdio: ['pipe', 'pipe', 'pipe'] });
+    const buy = buyCommand();
+    const child = spawn(buy.command, [...buy.args, ...args], { env: buyEnv(opts.env), stdio: ['pipe', 'pipe', 'pipe'] });
     let stdout = '';
     let stderr = '';
     child.stdout.on('data', (d) => (stdout += d));
@@ -95,5 +107,6 @@ export async function buyWhoami(): Promise<string> {
 
 /** Args for `buy mcp serve` so the agent loop can spawn it over stdio. */
 export function mcpServeCommand(): { command: string; args: string[]; env: NodeJS.ProcessEnv } {
-  return { command: buyBin(), args: ['mcp', 'serve', '--account', ACCOUNT], env: buyEnv() };
+  const buy = buyCommand();
+  return { command: buy.command, args: [...buy.args, 'mcp', 'serve', '--account', ACCOUNT], env: buyEnv() };
 }

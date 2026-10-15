@@ -124,10 +124,10 @@ Deploy with the Vercel root directory set to `courtroom`, add Upstash Redis from
 
 ## Plug in Swarm
 
-The agent's memory, receipts, dispute files and verdict all go through one interface, `adapters/storage/types.ts`. Set `STORAGE=swarm` and the files land on Swarm through the Bee API; `feedbackURI` becomes `bzz://<reference>` and the courtroom links to the gateway. `put` and `get` are implemented; feeds are left open. One file, one check command. See [docs/PLUG-IN-SWARM.md](docs/PLUG-IN-SWARM.md).
+The agent's memory, receipts, dispute files and verdict all go through one interface, `adapters/storage/types.ts`. Set `STORAGE=swarm` and the files land on Swarm through bee-js; `feedbackURI` becomes `bzz://<reference>` and the courtroom links to the gateway. Feeds included: with `SWARM_FEED_PRIVATE_KEY` set, the agent's memory head is one stable `bzz://` feed manifest. One file, one check command. See [docs/PLUG-IN-SWARM.md](docs/PLUG-IN-SWARM.md).
 
 ```bash
-STORAGE=swarm BEE_API_URL=http://localhost:1633 SWARM_POSTAGE_BATCH_ID=… pnpm check:storage
+STORAGE=swarm BEE_API_URL=http://localhost:1633 SWARM_POSTAGE_BATCH_ID=… SWARM_FEED_PRIVATE_KEY=0x… pnpm check:storage
 ```
 
 ## Plug in Kleros

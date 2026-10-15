@@ -8,7 +8,7 @@
 - [ ] Courtroom deployed. `/bench` opened once with the secret so the host cookie is set on the stage laptop and phone.
 - [ ] `pnpm rehearse --record` green on the final build. `evidence/fixtures.json` committed.
 - [ ] The defendant has at least ten judged reviews on askbots. `pnpm askbots:cron` run; `pnpm act:identity` shows the `askbots` tag in the reputation summary.
-- [ ] `buy whoami` runs without any keychain prompt (`BUY_KEYSTORE_BACKEND=file` is set by the scripts).
+- [ ] `buy whoami` runs without any keychain prompt. The key is in the OS keychain (`system` backend; buy refuses the `file` backend on mainnet): on macOS, click "Always Allow" once in rehearsal.
 - [ ] Phone hotspot tested as the laptop's network.
 
 ## T-30 min

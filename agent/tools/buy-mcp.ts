@@ -26,7 +26,7 @@ export async function connectBuy(): Promise<Client> {
   const c = new Client({ name: 'agent-on-trial', version: '0.1.0' });
   await c.connect(transport);
   client = c;
-  log.info(`connected to buy MCP (${command.split('/').pop()} ${args.join(' ')})`);
+  log.info(`connected to buy MCP (buy ${args.slice(args.indexOf('mcp')).join(' ')})`);
   return c;
 }
 
