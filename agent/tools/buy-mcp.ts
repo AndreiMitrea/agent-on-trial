@@ -1,6 +1,8 @@
 import { betaTool } from '@anthropic-ai/sdk/helpers/beta/json-schema';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { DEMO_TOKEN } from '@trial/shared';
+import { parseUnits } from 'viem';
 import { approve } from '../../lib/approve.js';
 import { mcpServeCommand, receiptsSince } from '../../lib/buy.js';
 import { log } from '../../lib/log.js';
@@ -16,6 +18,8 @@ const PAYING = new Set(['buy_curl']);
 const DEFAULT_TOKEN = 'USDT';
 /** Hard ceiling per paid call, in USD₮. The system prompt says the same; this one the model cannot talk its way past. */
 const MAX_AMOUNT = process.env.AGENT_MAX_AMOUNT ?? '0.05';
+/** buy_curl.maxAmount is in atomic units of the token, not decimal. */
+const MAX_AMOUNT_ATOMIC = parseUnits(MAX_AMOUNT, DEMO_TOKEN.decimals).toString();
 
 let client: Client | null = null;
 
@@ -62,7 +66,7 @@ export async function buyTools(ctx: ActContext) {
         inputSchema: t.inputSchema,
         run: async (input: Record<string, unknown>) => {
           const hasMax = Boolean(t.inputSchema.properties && 'maxAmount' in t.inputSchema.properties);
-          const args: Record<string, unknown> = { ...(hasToken ? { token: DEFAULT_TOKEN } : {}), ...input, ...(hasMax ? { maxAmount: MAX_AMOUNT } : {}) };
+          const args: Record<string, unknown> = { ...(hasToken ? { token: DEFAULT_TOKEN } : {}), ...input, ...(hasMax ? { maxAmount: MAX_AMOUNT_ATOMIC } : {}) };
           log.toolCall(t.name, args);
           if (PAYING.has(t.name)) {
             const target = typeof args.url === 'string' ? args.url : JSON.stringify(args).slice(0, 80);

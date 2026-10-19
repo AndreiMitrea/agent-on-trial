@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { env, roleKey } from './env.js';
@@ -66,11 +66,23 @@ export interface Receipt {
 }
 
 export function readReceipts(): Receipt[] {
-  const path = join(resolve(env.buyHome), 'receipts.json');
-  if (!existsSync(path)) return [];
+  const path = receiptsPath(resolve(env.buyHome));
+  if (!path) return [];
   const parsed = JSON.parse(readFileSync(path, 'utf8'));
   const list: Receipt[] = Array.isArray(parsed) ? parsed : (parsed.receipts ?? []);
   return list;
+}
+
+/** buy 0.8 writes versioned receipts.<n>.json (newest = highest n); older releases wrote receipts.json. */
+function receiptsPath(home: string): string | null {
+  if (!existsSync(home)) return null;
+  const versions = readdirSync(home)
+    .map((f) => f.match(/^receipts\.(\d+)\.json$/)?.[1])
+    .filter((n): n is string => n !== undefined)
+    .map(Number);
+  if (versions.length) return join(home, `receipts.${Math.max(...versions)}.json`);
+  const legacy = join(home, 'receipts.json');
+  return existsSync(legacy) ? legacy : null;
 }
 
 /** Receipts newer than `since`, newest first. */

@@ -10,6 +10,7 @@
   "packageManager": "pnpm@10.34.5",
   "scripts": {
     "trial": "tsx agent/session.ts",
+    "flow": "bash scripts/flow.sh",
     "preflight": "tsx steps/00-preflight.ts",
     "act:identity": "tsx steps/01-identity.ts",
     "act:earn": "tsx steps/02-earn.ts",
